@@ -3,10 +3,9 @@
 require 'spec_helper'
 require_relative '../exercises/basic_enumerable_exercises'
 
+# rubocop:disable Metrics/BlockLength
 RSpec.describe 'Basic Enumerable Exercises' do
-
   describe 'display current inventory exercise' do
-
     it 'outputs each inventory item' do
       expect($stdout).to receive(:puts).with("apples, quantity: 1")
       expect($stdout).to receive(:puts).with("bananas, quantity: 3")
@@ -24,7 +23,6 @@ RSpec.describe 'Basic Enumerable Exercises' do
   end
 
   describe 'display guess order exercise' do
-
     it 'outputs each guess of strings in order' do
       expect($stdout).to receive(:puts).with("Guess #1 is cookies")
       expect($stdout).to receive(:puts).with("Guess #2 is cake")
@@ -43,7 +41,6 @@ RSpec.describe 'Basic Enumerable Exercises' do
   end
 
   describe 'find absolute values exercise' do
-
     it 'returns an array of positive integers' do
       numbers = [0, -7, 14, -21]
       result = [0, 7, 14, 21]
@@ -58,7 +55,6 @@ RSpec.describe 'Basic Enumerable Exercises' do
   end
 
   describe 'find low inventory exercise' do
-
     it 'returns a hash with integer values' do
       fruit = { apples: 1, peaches: 4, bananas: 3, oranges: 7 }
       result = { apples: 1, bananas: 3 }
@@ -73,7 +69,6 @@ RSpec.describe 'Basic Enumerable Exercises' do
   end
 
   describe 'find word length exercise' do
-
     it 'returns a hash with rocket syntax when using strings' do
       animals = ['cat', 'horse', 'rabbit', 'deer']
       result = { 'cat' => 3, 'horse' => 5, 'rabbit' => 6, 'deer' => 4 }
@@ -87,3 +82,4 @@ RSpec.describe 'Basic Enumerable Exercises' do
     end
   end
 end
+# rubocop:enable Metrics/BlockLength
