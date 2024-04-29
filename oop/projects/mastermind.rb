@@ -33,10 +33,6 @@ module Mastermind
     def add_guess(guess)
       # Need to validate the guess at some point
       @guesses << guess
-    end
-
-    def add_matches(guess)
-      # Need to validate the guess at some point
       @matches << get_matches(guess)
     end
 
@@ -77,7 +73,7 @@ module Mastermind
       guess = get_guess_string(guesses[index])
       match = get_match_string(matches[index])
       spaces = ' ' * (4 - matches[index].length) * 2
-      puts "|   #{index + 1}  #{' ' if index < 10}|#{guess} #{match}#{spaces}|"
+      puts "|   #{index + 1}  #{' ' if index < 9}|#{guess} #{match}#{spaces}|"
       puts '-----------------------------------'
     end
 
@@ -93,22 +89,24 @@ module Mastermind
 
     private
 
-    def add_temp_match(matches, val, temp_guess, index)
+    def add_temp_match(matches, val, temp_secret, index)
       matches << val
-      temp_guess[index] = nil
+      temp_secret[index] = nil
     end
 
     def get_matches(guess)
       matches = []
-      temp_guess = guess.dup
-      temp_guess.each_index do |i|
-        if @secret[i] == temp_guess[i]
-          add_temp_match(matches, 2, temp_guess, i)
-        elsif temp_guess.include?(@secret[i])
-          add_temp_match(matches, 1, temp_guess, i)
-        end
+      temp_secret = @secret.dup
+      guess.each_index do |i|
+        found = temp_secret.find_index(guess[i])
+        next unless found
+
+        add_temp_match(matches, 2, temp_secret, found) if found == i
+        next if found == i
+
+        add_temp_match(matches, temp_secret[found] == guess[found] ? 2 : 1, temp_secret, found)
       end
-      matches
+      matches.shuffle
     end
   end
 
@@ -119,8 +117,8 @@ module Mastermind
     attr_accessor :board, :player
 
     def initialize(player)
-      secret = 4.times.map { SHORT_COLORS.sample }
-      self.board = Board.new(secret)
+      @secret = 4.times.map { SHORT_COLORS.sample }
+      self.board = Board.new(@secret)
       self.player = player
       start
     end
@@ -128,15 +126,28 @@ module Mastermind
     def start
       print_welcome_message
       until game_over?
-        print "\nEnter guess #{board.guesses.length + 1}: "
-        guess = gets.chomp.split
+        guess = player_guess
         board.add_guess(guess)
-        board.add_matches(guess)
-        board.print_board({ show_guesses_left: true })
+        board.print_board({ show_guesses_left: !game_over? })
       end
+      print_game_over
     end
 
     private
+
+    def player_guess
+      print "\nEnter guess #{board.guesses.length + 1}: "
+      gets.chomp.split
+    end
+
+    def print_game_over
+      if board.winner?
+        puts "You win! You guessed the code! It was #{@secret.join(' ')}."
+      elsif board.no_more_guesses?
+        puts 'Sorry! You lost! :('
+        puts "The secret message was #{@secret.join(' ')}."
+      end
+    end
 
     def print_welcome_message
       puts "Welcome to Mastermind, #{player.name}!"
@@ -148,7 +159,7 @@ module Mastermind
       puts "If you have guessed a peg of the right color AND the right position, a '2' will be given."
       puts "If you have guessed a peg of the right color BUT the wrong position, a '1' will be given."
       puts "You'll need to use the feedback in the 'Matches' column to inform your next guess."
-      puts 'Goodluck!'
+      puts 'Good luck!'
     end
 
     def game_over?
